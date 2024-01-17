@@ -1,0 +1,11 @@
+# GitHub Repositories Viewer
+
+This project provides a user-friendly interface to view GitHub repositories for a specified user. You can adjust the number of repositories displayed per page and easily navigate through the pages. The application offers both list-based pagination and button-based pagination for your convenience.
+
+## Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/github-repositories-viewer.git
+cd github-repositories-viewer
