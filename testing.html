@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Repositories Viewer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      #content-container {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        max-width: 800px;
+        margin: 20px auto;
+      }
+
+      #user-info {
+        text-align: left;
+        margin-bottom: 20px;
+        padding-right: 20px;
+      }
+
+      #user-info img {
+        border-radius: 50%;
+        max-width: 100px;
+      }
+
+      #repos-container {
+        border-top: 1px solid #ddd;
+        padding-top: 15px;
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+
+      .repo {
+        border: 1px solid black;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border-width: 4px;
+        width: 48%;
+        box-sizing: border-box;
+      }
+
+      .repo a {
+        text-decoration: none;
+        color: #0366d6;
+        font-weight: bold;
+      }
+
+      .language-button {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-top: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        color: #586069;
+      }
+
+      #page-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      #page-border {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 20px;
+        display: inline-block;
+      }
+      #pagination {
+        text-align: center;
+      }
+
+      .page-link {
+        display: inline-block;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #f8f8f8;
+        text-decoration: none;
+        color: #0366d6;
+      }
+
+      .page-link:hover {
+        background-color: #e6e6e6;
+      }
+
+      .current-page {
+        background-color: #0366d6;
+        color: #fff;
+      }
+
+      .pagination-button {
+        display: inline-block;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #f8f8f8;
+        text-decoration: none;
+        color: #0366d6;
+        margin: 0 14px;
+      }
+
+      .pagination-button:hover {
+        background-color: #e6e6e6;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GitHub Repositories Viewer</h1>
+
+    <div id="content-container">
+      <div id="user-info">
+        <img src="" alt="Profile Image" id="profile-image" />
+        <h2 id="user-name"></h2>
+        <a href="" id="profile-link" target="_blank">View GitHub Profile</a>
+      </div>
+
+      <div id="repos-container"></div>
+      <div id="page-container">
+        <div id="page-border">
+          <div id="pagination"></div>
+        </div>
+      </div>
+      <div id="page-container">
+        <div id="pagination-buttons"></div>
+      </div>
+    </div>
+
+    <!-- Loader element -->
+    <div id="loader" style="display: none; text-align: center">
+      <img src="loader.gif" alt="Loading..." />
+      <p>Loading...</p>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const username = "jayprakash98";
+        let reposPerPage = 10; // Default repositories per page
+        const maxReposPerPage = 100;
+        let currentPage = 1;
+
+        // Loader elements
+        const loader = document.getElementById("loader");
+        const contentContainer = document.getElementById("content-container");
+
+        // Function to toggle loader visibility
+        function toggleLoader(showLoader) {
+          loader.style.display = showLoader ? "block" : "none";
+          contentContainer.style.display = showLoader ? "none" : "block";
+        }
+
+        // Initial loader display
+        toggleLoader(true);
+
+        fetch(`https://api.github.com/users/${username}`)
+          .then((response) => response.json())
+          .then((userData) => {
+            displayUserInfo(userData);
+            return fetch(`https://api.github.com/users/${username}/repos`);
+          })
+          .then((response) => response.json())
+          .then((repositories) => {
+            toggleLoader(false); // Hide loader when data is fetched
+            displayRepositories(repositories, currentPage, reposPerPage);
+            displayPagination(repositories, reposPerPage);
+            displayPaginationButtons(repositories, reposPerPage);
+          })
+          .catch((error) => {
+            toggleLoader(false); // Hide loader on error
+            console.error("Error fetching data:", error);
+          });
+
+        function displayUserInfo(userData) {
+          const profileImage = document.getElementById("profile-image");
+          const userName = document.getElementById("user-name");
+          const profileLink = document.getElementById("profile-link");
+
+          profileImage.src = userData.avatar_url;
+          userName.textContent = userData.name || username;
+          profileLink.href = userData.html_url;
+        }
+
+        function displayRepositories(repositories, page, perPage) {
+          const reposContainer = document.getElementById("repos-container");
+          const startIndex = (page - 1) * perPage;
+          const endIndex = startIndex + perPage;
+
+          reposContainer.innerHTML = ""; // Clear previous content
+
+          if (repositories.length === 0) {
+            reposContainer.innerHTML = "<p>No public repositories found.</p>";
+          } else {
+            repositories.slice(startIndex, endIndex).forEach((repo) => {
+              const repoElement = document.createElement("div");
+              repoElement.classList.add("repo");
+              repoElement.innerHTML = `
+                            <h2><a href="${repo.html_url}" target="_blank">${
+                              repo.name
+                            }</a></h2>
+                            <p>${
+                              repo.description || "No description available."
+                            }</p>
+                            <span class="language-button">${
+                              repo.language || "Not specified"
+                            }</span>
+                        `;
+              reposContainer.appendChild(repoElement);
+            });
+          }
+        }
+
+        function displayPagination(repositories, perPage) {
+          const paginationContainer = document.getElementById("pagination");
+          const pageCount = Math.ceil(repositories.length / perPage);
+
+          if (pageCount > 1) {
+            paginationContainer.innerHTML = ""; // Clear previous content
+
+            for (let i = 1; i <= pageCount; i++) {
+              const pageLink = document.createElement("a");
+              pageLink.classList.add("page-link");
+              pageLink.textContent = i;
+              pageLink.href = "#";
+              pageLink.addEventListener("click", () => {
+                currentPage = i;
+                displayRepositories(repositories, currentPage, perPage);
+                updatePaginationStyles();
+              });
+
+              paginationContainer.appendChild(pageLink);
+            }
+
+            updatePaginationStyles();
+          }
+        }
+
+        function displayPaginationButtons(repositories, perPage) {
+          const paginationButtonsContainer =
+            document.getElementById("pagination-buttons");
+
+          const pageCount = Math.ceil(repositories.length / perPage);
+
+          if (pageCount > 1) {
+            const previousButton = document.createElement("button");
+            previousButton.classList.add("pagination-button");
+            previousButton.textContent = "Previous";
+            previousButton.addEventListener("click", () => {
+              if (currentPage > 1) {
+                currentPage--;
+                displayRepositories(repositories, currentPage, perPage);
+                updatePaginationStyles();
+              }
+            });
+            paginationButtonsContainer.appendChild(previousButton);
+
+            const nextButton = document.createElement("button");
+            nextButton.classList.add("pagination-button");
+            nextButton.textContent = "Next";
+            nextButton.addEventListener("click", () => {
+              if (currentPage < pageCount) {
+                currentPage++;
+                displayRepositories(repositories, currentPage, perPage);
+                updatePaginationStyles();
+              }
+            });
+            paginationButtonsContainer.appendChild(nextButton);
+          }
+        }
+
+        function updatePaginationStyles() {
+          const paginationLinks = document.querySelectorAll(".page-link");
+
+          paginationLinks.forEach((link) => {
+            if (parseInt(link.textContent) === currentPage) {
+              link.classList.add("current-page");
+            } else {
+              link.classList.remove("current-page");
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
