@@ -1,11 +1,25 @@
 # GitHub Repositories Viewer
 
-This project provides a user-friendly interface to view GitHub repositories for a specified user. You can adjust the number of repositories displayed per page and easily navigate through the pages. The application offers both list-based pagination and button-based pagination for your convenience.
-
 ## Instructions
 
-### 1. Clone the Repository
+### 2. Open `index.html` in a Browser
 
-```bash
-git clone https://github.com/your-username/github-repositories-viewer.git
-cd github-repositories-viewer
+Open the `index.html` file in your preferred web browser. You can do this by either double-clicking the file or using your browser's "Open File" option.
+
+### 3. Explore GitHub Repositories
+
+- Enter the GitHub username for the user whose repositories you want to view.
+- The default setting displays 10 repositories per page, but you can easily change this value using the dropdown menu.
+- Navigate through the pages seamlessly using either the pagination links or the provided buttons.
+
+## Live Demo
+
+Visit the hosted web app to explore GitHub repositories: [GitHub Repositories Viewer](https://your-username.github.io/github-repositories-viewer/)
+
+## Additional Information
+
+- Ensure that your internet connection is active to fetch data from the GitHub API.
+- A loader will be displayed while fetching data to keep you informed about the ongoing process.
+- Feel free to use the hosted web app or run the project locally to meet your preferences.
+
+Contributions to enhance and customize the project are always welcome!
